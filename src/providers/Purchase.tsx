@@ -3,17 +3,21 @@ import { createContext, ReactNode, useEffect, useReducer } from 'react';
 import axios from 'axios';
 
 type ProductType = {
-  imgSrc: string;
+  imageUrl: string;
   name: string;
   price: string;
-  amount?: number;
+  id: string;
+  description?: string;
+  defaultPriceId?: string;
+  quantity?: number;
 };
 
 interface PurchaseContextProps {
   cart: ProductType[];
-  addToCart: () => void;
-  completeOrder: () => void;
-  removeFromCart: () => void;
+  total: number;
+  addToCart: (product: ProductType) => void;
+  removeFromCart: (id: string) => void;
+  buyProduct: (product: ProductType) => void;
 }
 
 interface PurchaseContextProviderProps {
@@ -32,12 +36,37 @@ export const PurchaseProvider = ({
           return action.payload.cart;
         }
 
+        case 'ADD_TO_CART': {
+          const { cart } = state;
+
+          const newCart = [...cart, action.payload.product];
+
+          return {
+            cart: newCart,
+            total: newCart.length * 50,
+          };
+        }
+
+        case 'REMOVE_FROM_CART': {
+          const { cart } = state;
+
+          const newCart = cart.filter((product: ProductType) => {
+            return product.id !== action.payload.id;
+          });
+
+          return {
+            cart: newCart,
+            total: newCart.length * 50,
+          };
+        }
+
         default:
           return state;
       }
     },
     {
       cart: [],
+      total: 0,
     },
   );
 
@@ -60,35 +89,50 @@ export const PurchaseProvider = ({
     localStorage.setItem('@ignite-shop/purchase', stateJSON);
   }, [purchaseState]);
 
-  const { cart } = purchaseState;
+  const { cart, total } = purchaseState;
 
-  const addToCart = () => {};
+  const addToCart = (product: ProductType) => {
+    dispatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        product,
+      },
+    });
+  };
 
-  const removeFromCart = () => {};
+  const removeFromCart = (id: string) => {
+    dispatch({
+      type: 'REMOVE_FROM_CART',
+      payload: {
+        id,
+      },
+    });
+  };
 
-  const completeOrder = () => {};
+  const buyProduct = async () => {
+    const pricesId = cart.map((product: ProductType) => {
+      return {
+        price: product.defaultPriceId,
+        quantity: product.quantity,
+      };
+    });
 
-  const buyProduct = () => {
-    // const handleBuyProduct = async () => {
-    //   try {
-    //     setIsCreatingCheckoutSession(true);
-    //     const resp = await axios.post('/api/checkout', {
-    //       priceId: product.defaultPriceId,
-    //     });
-    //     const { checkoutUrl } = resp.data;
-    //     // router.push('/checkout') Para rotas internas
-    //     window.location.href = checkoutUrl; // Para rotas externas
-    //   } catch (error) {
-    //     // Conectar com ferramenta de observabilidade (Datadog / Sentry)
-    //     setIsCreatingCheckoutSession(false);
-    //     alert('Falha ao realizar compra!');
-    //   }
-    // };
+    try {
+      const resp = await axios.post('/api/checkout', {
+        pricesId,
+      });
+      const { checkoutUrl } = resp.data;
+      // router.push('/checkout') Para rotas internas
+      window.location.href = checkoutUrl; // Para rotas externas
+    } catch (error) {
+      // Conectar com ferramenta de observabilidade (Datadog / Sentry)
+      alert(error.error);
+    }
   };
 
   return (
     <PurchaseContext.Provider
-      value={{ cart, addToCart, removeFromCart, completeOrder }}
+      value={{ cart, addToCart, removeFromCart, buyProduct, total }}
     >
       {children}
     </PurchaseContext.Provider>

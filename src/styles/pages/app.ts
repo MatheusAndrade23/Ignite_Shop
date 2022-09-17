@@ -19,7 +19,7 @@ export const Header = styled('header', {
   justifyContent: 'space-between',
   alignItems: 'center',
 
-  button: {
+  ' > button': {
     padding: 10,
     fontSize: 16,
     lineHeight: 0,
