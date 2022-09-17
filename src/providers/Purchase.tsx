@@ -17,7 +17,7 @@ interface PurchaseContextProps {
   total: number;
   addToCart: (product: ProductType) => void;
   removeFromCart: (id: string) => void;
-  buyProduct: (product: ProductType) => void;
+  buyProduct: () => void;
 }
 
 interface PurchaseContextProviderProps {
@@ -92,6 +92,15 @@ export const PurchaseProvider = ({
   const { cart, total } = purchaseState;
 
   const addToCart = (product: ProductType) => {
+    const { id } = product;
+
+    const productInCart = cart.filter((product: ProductType) => {
+      return product.id === id;
+    });
+
+    if (productInCart.length > 0) {
+      return;
+    }
     dispatch({
       type: 'ADD_TO_CART',
       payload: {

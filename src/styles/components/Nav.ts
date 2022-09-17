@@ -6,6 +6,10 @@ export const NavContainer = styled('nav', {
   top: 0,
   zIndex: 100,
 
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+
   width: '100%',
   height: '100vh',
   maxWidth: 400,
@@ -81,7 +85,7 @@ export const ProductsContainer = styled('div', {
 });
 
 export const InfoContainer = styled('div', {
-  marginTop: '140%',
+  marginTop: 'auto',
   width: '100%',
   height: 50,
 
