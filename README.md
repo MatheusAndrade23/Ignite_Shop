@@ -1,4 +1,4 @@
-<h1 align="center">Iginite Shop 🛒</h1>
+<h1 align="center">Ignite Shop 🛒</h1>
 
 
 <h3 align="center">E-Commerce de camisetas feito com NextJS + Stripe para o desafio da trilha de React da jornada Ignite da Rocketseat.</h3>
